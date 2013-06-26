@@ -18,5 +18,6 @@
 "src/directives/html.js",
 "src/directives/jqmViewport.js",
 "src/directives/jqmCachingView.js",
+"src/directives/jqmFlip.js",
 "src/animations/jqmPageAnimation.js"
 ]

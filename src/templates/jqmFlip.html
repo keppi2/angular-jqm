@@ -1,0 +1,17 @@
+<div>
+    <div ng-transclude></div>
+    <div role="application" class="ui-slider ui-slider-switch ui-btn-down-c ui-btn-corner-all">
+        <span ng-class="{'ui-btn-active' : option1.selected , 'ui-btn-down-c' : !option1.selected}" class="ui-slider-label ui-slider-label-a ui-btn-corner-all" role="img"   ng-style="{'width:100%' : option1.selected, 'width:0%' : !option1.selected}">{{option1.text}}</span>
+        <span ng-class="{'ui-btn-active' : option2.selected , 'ui-btn-down-c' : !option2.selected}" class="ui-slider-label ui-slider-label-b ui-btn-corner-all" role="img"   ng-style="{'width:100%' : option2.selected, 'width:0%' : !option2.selected}">{{option2.text}}</span>
+        <div class="ui-slider-inneroffset">
+           <a href="#" class="ui-slider-handle ui-slider-handle-snapping ui-btn ui-btn-up-c ui-shadow ui-btn-corner-all"
+              data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" role="slider" aria-valuemin="0" aria-valuemax="1"
+              aria-valuenow="{{current.value}}" aria-valuetext="{{current.text}}" title="{{current.text}}" aria-labelledby="flip-1-label" ng-style="{'left:100%' : option1.selected, 'left:0%' : !option1.selected}">
+                  <span class="ui-btn-inner">
+                       <span class="ui-btn-text">
+                       </span>
+                   </span>
+               </a>
+           </div>
+    </div>
+</div>

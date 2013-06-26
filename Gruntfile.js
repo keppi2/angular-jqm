@@ -123,20 +123,20 @@ module.exports = function(grunt) {
       dev: {
         options: {
           singleRun: false,
-          browsers: ['PhantomJS']
+          browsers: ['Chrome']
         },
         background: true
       },
       travis: {
         options: {
           singleRun: true,
-          browsers: ['PhantomJS']
+          browsers: ['Chrome']
         }
       },
       localBuild: {
         options: {
           singleRun: true,
-          browsers: ['PhantomJS']
+          browsers: ['Chrome']
         }
       }
     },

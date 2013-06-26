@@ -1,4 +1,4 @@
-/*! angular-jqm - v0.0.1-SNAPSHOT - 2013-06-25
+/*! angular-jqm - v0.0.1-SNAPSHOT - 2013-06-26
  * https://github.com/opitzconsulting/angular-jqm
  * Copyright (c) 2013 OPITZ CONSULTING GmbH; Licensed MIT */
 (function(window, angular) {
@@ -769,6 +769,44 @@ jqmModule.directive('jqmCachingView', ['$jqmViewCache', '$templateCache', '$rout
             }
         };
     }]);
+jqmModule.directive('jqmFlip', ['jqmTheme', function (jqmTheme) {
+    return {
+        templateUrl : "templates/jqmFlip.html",
+        transclude: true,
+        restrict: 'A',
+        link: function (scope, iElement) {
+            var theme = jqmTheme(iElement);
+            scope.option1 = {};
+            scope.option2 = {};
+            scope.current = {};
+
+            var select = angular.element(iElement.children()[0].children[0].children[0]);
+            select.addClass('ui-slider-switch');
+
+            var option1 = angular.element(select[0].children[1]);
+            var option2 = angular.element(select[0].children[0]);
+
+            scope.option1.text = option1[0].text;
+            scope.option1.value = option1[0].value;
+            scope.option2.text = option2[0].text;
+            scope.option2.value = option2[0].value;
+
+            if(option1[0].selected === true){
+                scope.option1.selected = true;
+                scope.option2.selected = false;
+                scope.current = scope.option1;
+            }else{
+                scope.option1.selected = false;
+                scope.option2.selected = true;
+                scope.current = scope.option2;
+
+            }
+
+        }
+    };
+
+}]);
+
 var PAGE_ANIMATION_DEFS = {
     none: {
         sequential: true,
@@ -1065,7 +1103,7 @@ function registerPageAnimation(transitionType, reverse, direction) {
 }
 
 
-angular.module('jqm-templates', ['templates/jqmCheckbox.html']);
+angular.module('jqm-templates', ['templates/jqmCheckbox.html', 'templates/jqmFlip.html']);
 
 angular.module("templates/jqmCheckbox.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("templates/jqmCheckbox.html",
@@ -1082,6 +1120,27 @@ angular.module("templates/jqmCheckbox.html", []).run(["$templateCache", function
     "        </span>\n" +
     "    </label>\n" +
     "    <input type=\"checkbox\" ng-model=\"$scopeAs.jqmCheckbox.checked\">\n" +
+    "</div>");
+}]);
+
+angular.module("templates/jqmFlip.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("templates/jqmFlip.html",
+    "<div>\n" +
+    "    <div ng-transclude></div>\n" +
+    "    <div role=\"application\" class=\"ui-slider ui-slider-switch ui-btn-down-c ui-btn-corner-all\">\n" +
+    "        <span ng-class=\"{'ui-btn-active' : option1.selected , 'ui-btn-down-c' : !option1.selected}\" class=\"ui-slider-label ui-slider-label-a ui-btn-corner-all\" role=\"img\"   ng-style=\"{'width:100%' : option1.selected, 'width:0%' : !option1.selected}\">{{option1.text}}</span>\n" +
+    "        <span ng-class=\"{'ui-btn-active' : option2.selected , 'ui-btn-down-c' : !option2.selected}\" class=\"ui-slider-label ui-slider-label-b ui-btn-corner-all\" role=\"img\"   ng-style=\"{'width:100%' : option2.selected, 'width:0%' : !option2.selected}\">{{option2.text}}</span>\n" +
+    "        <div class=\"ui-slider-inneroffset\">\n" +
+    "           <a href=\"#\" class=\"ui-slider-handle ui-slider-handle-snapping ui-btn ui-btn-up-c ui-shadow ui-btn-corner-all\"\n" +
+    "              data-corners=\"true\" data-shadow=\"true\" data-iconshadow=\"true\" data-wrapperels=\"span\" data-theme=\"c\" role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"1\"\n" +
+    "              aria-valuenow=\"{{current.value}}\" aria-valuetext=\"{{current.text}}\" title=\"{{current.text}}\" aria-labelledby=\"flip-1-label\" ng-style=\"{'left:100%' : option1.selected, 'left:0%' : !option1.selected}\">\n" +
+    "                  <span class=\"ui-btn-inner\">\n" +
+    "                       <span class=\"ui-btn-text\">\n" +
+    "                       </span>\n" +
+    "                   </span>\n" +
+    "               </a>\n" +
+    "           </div>\n" +
+    "    </div>\n" +
     "</div>");
 }]);
 })(window, angular);
