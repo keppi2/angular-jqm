@@ -3,31 +3,65 @@ jqmModule.directive('jqmFlip', ['jqmTheme', function (jqmTheme) {
         templateUrl : "templates/jqmFlip.html",
         transclude: true,
         restrict: 'A',
-        link: function (scope, iElement) {
+        require: '?ngModel',
+        link: function (scope, iElement, attr, ngModelCtrl) {
             var theme = jqmTheme(iElement);
-            scope.option1 = {};
-            scope.option2 = {};
+
+            //console.dir(attr);
+
+            scope.optionOn = {};
+            scope.optionOff = {};
             scope.current = {};
 
-            var select = angular.element(iElement.children()[0].children[0].children[0]);
-            select.addClass('ui-slider-switch');
-
-            var option1 = angular.element(select[0].children[1]);
-            var option2 = angular.element(select[0].children[0]);
-
-            scope.option1.text = option1[0].text;
-            scope.option1.value = option1[0].value;
-            scope.option2.text = option2[0].text;
-            scope.option2.value = option2[0].value;
-
-            if(option1[0].selected === true){
-                scope.option1.selected = true;
-                scope.option2.selected = false;
-                scope.current = scope.option1;
+            if((typeof attr.onLabel) !== "undefined") {
+                scope.optionOn.label = attr.onLabel;
             }else{
-                scope.option1.selected = false;
-                scope.option2.selected = true;
-                scope.current = scope.option2;
+                scope.optionOn.label = "On";
+            }
+
+            if((typeof attr.onValue) !== "undefined") {
+                scope.optionOn.value = attr.onValue;
+            }
+            else{
+                scope.optionOn.value = true;
+            }
+
+            if((typeof attr.offLabel) !== "undefined") {
+                scope.optionOff.label = attr.offLabel;
+            }else{
+                scope.optionOff.label = "Off";
+            }
+
+            if((typeof attr.offValue) !== "undefined") {
+                scope.optionOff.value = attr.offValue;
+            }
+            else{
+                scope.optionOff.value = false;
+            }
+
+            scope.current = scope.optionOn;
+
+
+
+            if (ngModelCtrl) {
+                enableNgModelCollaboration();
+            }
+
+
+            function enableNgModelCollaboration() {
+                var onValue = scope.optionOn.value,
+                    offValue = scope.optionOff.value;
+
+
+                ngModelCtrl.$render = function () {
+
+                    if(ngModelCtrl.$viewValue === scope.optionOn.value )  {
+                        scope.current = scope.optionOn;
+                    }else{
+                        scope.current = scope.optionOff;
+                    }
+                };
+
 
             }
 
