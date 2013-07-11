@@ -21,6 +21,8 @@
                 }
             });
         });
+
+
     </script>
 
     <script type="text/ng-template" id="main.html">
@@ -29,13 +31,18 @@
             <h1>Main page</h1>
             <a href="#/page2.html">To page2</a>
             <br />
-            <div>
-                <div jqm-flip>
-                    <select name="flip-1" id="flip-1">
-                        <option value="off" selected >Off</option>
-                        <option value="on" >On</option>
-                    </select>
+            <div class="container">
+
+                <div jqm-flip
+                     ng-model="selectedValue" on-label="On" on-value="Onn" off-label="Off" off-value="Offf" >
                 </div>
+                Value = <input type="text" ng-model="selectedValue" />
+                option1 option2 label1 label2
+                ng-model ist direktive und erzeugt controller
+                value standardmäßig boolean
+                jqmcheckbox
+                ng-click
+
             </div>
         </div>
     </script>
@@ -45,7 +52,6 @@
         <div jqm-page>
             <h1>Page 2</h1>
             My Page
-            <div jqm-checkbox label="someLabel"></div>
         </div>
     </script>
 </head>

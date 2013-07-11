@@ -9,7 +9,7 @@ describe('jqmFlip', function() {
         testutils.compareElementRecursive(value, expected);
     });
 
-    iit('generates same markup as jq data-role="slider" without select and option', function() {
+    it('generates same markup as jq data-role="slider" without select and option', function() {
        var value = testutils.ng.init('<div jqm-flip on-label="someLabelOn" on-value="someValueOn" off-label="someLabelOff" off-value="someValueOff">'+
             '</div>');
 
@@ -34,7 +34,7 @@ describe('jqmFlip', function() {
     });
 
 
-    iit('it selects Off Value by Default', function() {
+    it('it selects Off Value by Default', function() {
         var ng = testutils.ng;
         var ngElement = ng.init('<div jqm-flip ng-model="myVar" on-label="someLabelOn" on-value="someValueOn" off-label="someLabelOff" off-value="someValueOff">'+
             '</div>');
