@@ -197,5 +197,14 @@ describe('testutils', function () {
                 expect(spy).toHaveBeenCalled();
             });
         });
+      
+       describe('testutils compare', function () {
+            it('compares id of elements', function () {
+                   var string = api.init("<myelement id='1'></myelement>");
+                   var string2 = api.init("<myelement></myelement>");
+
+                  testutils.compareElementRecursive(string, string2);
+            });
+        });
     }
 });
