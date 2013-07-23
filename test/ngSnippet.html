@@ -11,19 +11,17 @@
     <script>
         var mod = angular.module("app", ["jqm"]);
         mod.config(function ($routeProvider) {
+            $routeProvider.when("/", {
+                redirectTo: "main.html"
+            });
             $routeProvider.when("/ngSnippet.html", {
                 redirectTo: "main.html"
             });
-            $routeProvider.when("/main.html", {
-                templateUrl: 'main.html',
-                animation: 'page-slide'
-            });
-            $routeProvider.when("/page2.html", {
-                templateUrl: 'page2.html',
-                animation: 'page-slide'
-            });
-            $routeProvider.otherwise({
-                redirectTo: "main.html"
+            $routeProvider.when("/:page", {
+                transition: 'slide',
+                templateUrl: function (params) {
+                    return params.page;
+                }
             });
         });
     </script>
@@ -42,23 +40,31 @@
     <!-- the main page of your app -->
     <div jqm-page>
         <div jqm-header><h1>Page1</h1></div>
-        <a href="#/page2.html">To page2</a>
-
-        <p>hello</p>
-
-        <p>hello</p>
-
-        <p>hello</p>
-        <p>hello</p>
-
-        <p>hello</p>
-    </div>
+     
+ 
+        
+        <div>
+         <form action="http://Foobar3000.com/echo" method="GET" >
+            <input type="text" name="test" />
+            <div jqm-button="submit" jqm-button-icon="ok">Submit</div>
+            <div jqm-button="reset" jqm-button-icon="delete">Reset</div>
+          </form>
+        </div>
+        
+         <div jqm-footer>
+          <h1>Test fixed footer</h1>
+        </div>
+        
+    </div> 
 </script>
 
 <script type="text/ng-template" id="page2.html">
     <!-- Another page -->
     <div jqm-page>
         <div jqm-header><h1>Page2</h1></div>
+        <div jqm-footer>
+            <h1>Test fixed footer</h1>
+        </div>
         <a href="#/main.html">To page1</a>
 
         <p>hello</p>
@@ -75,6 +81,7 @@
     <div jqm-footer><h1>Fixed Footer</h1></div>
 
 </div>
+<div jqm-viewport></div>
 
 </body>
 
