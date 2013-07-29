@@ -40,13 +40,19 @@
     <div jqm-page>
         <div jqm-header><h1>Page1</h1></div>
      
+ 
+        
         <div>
-          <a id="hello" href="http://google.de/" jqm-button jqm-button-icon="delete" >button</a>
-
+         <form action="http://Foobar3000.com/echo" method="GET" >
+            <input type="text" name="test" />
+            <div jqm-button="submit" jqm-button-icon="ok">Submit</div>
+            <div jqm-button="reset" jqm-button-icon="delete">Reset</div>
+          </form>
         </div>
-           <div jqm-footer>
-            <h1>Test fixed footer</h1>
-          </div>
+        
+         <div jqm-footer>
+          <h1>Test fixed footer</h1>
+        </div>
         
     </div> 
 </script>
