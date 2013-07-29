@@ -22,12 +22,13 @@
           jqmElement = jqm.init('<button type="submit" '+jqmAttrs+' >myButtons</a>');;
       }
     function compileResetButton(ngAttrs, jqmAttrs) {
-          ngElement = ng.init('<div jqm-button="submit" '+ngAttrs+'>myButtons</div>');
-          jqmElement = jqm.init( '<button type="submit" '+jqmAttrs+' >myButtons</a>');
+          ngElement = ng.init('<div jqm-button="reset" '+ngAttrs+'>myButtons</div>');
+          jqmElement = jqm.init( '<button type="reset" '+jqmAttrs+' >myButtons</a>');
       }
 
+
     
-      describe('anker tag ', function () {
+      describe('anker ', function () {
         
           testLayout(compileAnker);
         
@@ -40,7 +41,11 @@
     
       describe('button', function () {
           
-          testLayout(compileButton);
+         
+          testLayout(compileButton);    
+          describe(' submit ', function () {
+            testLayout(compileSubmitButton);   
+          });
         
           it("has same markup when disabled", function () {
             compileButton('jqm-button-disabled ','');
@@ -48,18 +53,15 @@
             testutils.compareElementRecursive(ngElement, jqmElement);
           });     
         
-          it("is able to be a submit button", function () {
-            compileSubmitButton('','');
-            testutils.compareElementRecursive(ngElement, jqmElement);
-          });  
-        
-           it("is able to be a reset button", function () {
+
+           xit("is able to be a reset button", function () {
             compileResetButton('','');
             testutils.compareElementRecursive(ngElement, jqmElement);
           });   
         
       });
-    
+
+
     
     function testLayout(compileFunction){
           describe('layout', function () {  
@@ -136,6 +138,11 @@
             
             it("has same markup when mini", function () {
               compileFunction('data-mini="true"','data-mini="true"');
+              testutils.compareElementRecursive(ngElement, jqmElement);
+            });
+            
+            it("inline buttons", function () {
+              compileFunction('jqm-button-inline','data-inline="true"');
               testutils.compareElementRecursive(ngElement, jqmElement);
             });
            

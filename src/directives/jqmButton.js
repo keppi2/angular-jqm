@@ -14,7 +14,18 @@
  * @param {string=} mini
  *
  * @example
-
+<example module="jqm">
+  <file name="index.html">
+    <a href="https://google.com/" jqm-button jqm-button-icon="search">Do some search</a>
+    <a href="https://bing.com/" jqm-button jqm-button-icon="search" data-mini="true" >Mini search</a>
+    <a href="https://google.com/" jqm-button jqm-button-icon="search" jqm-button-disabled >This is not working</a>
+    <form action="http://foobar3000.com/echo" method="GET">
+      <input type="text" name="textinput" value="" />
+      <div jqm-button="submit" jqm-button-icon="check">Submit it!</div>
+      <div jqm-button="reset" jqm-button-icon="minus" data-iconpos="right" >Throw it away</div>
+    </form>
+  </file>
+</example>
  */
 jqmModule.directive('jqmButton', [function () {
     return {
@@ -37,6 +48,7 @@ jqmModule.directive('jqmButton', [function () {
           scope.isButton = isButton;
           scope.isSubmitButton = isSubmitButton;
           scope.isResetButton = isResetButton;
+          scope.isInline = isInline;
           scope.theme = scope.$theme || 'c';
           
           function isMini() {
@@ -56,6 +68,10 @@ jqmModule.directive('jqmButton', [function () {
              return attr.jqmButtonIconpos;
             else
              return "left";
+          }
+ 
+          function isInline(){
+            return attr.jqmButtonInline === ""; 
           }
  
           function toggleMouseOver(){
@@ -92,6 +108,7 @@ jqmModule.directive('jqmButton', [function () {
           element.addClass("ui-btn ui-shadow ui-btn-corner-all ui-btn-up-"+scope.$theme+" "+
                            ((isMini())?"ui-mini ":" ") +
                            ((isIcon())?"ui-btn-icon-"+getIconPos()+" ":" ") + 
+                           ((isInline())?"ui-btn-inline ":" ") + 
                            ((isSubmitButton())?"ui-submit":"") );
           element.bind('mouseenter', toggleMouseOver);
           element.bind('mouseleave', toggleMouseLeave);
