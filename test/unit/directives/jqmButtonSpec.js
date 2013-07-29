@@ -1,7 +1,6 @@
   "use strict";
-  ddescribe("jqmButton", function () {
+  describe("jqmButton", function () {
       var ng, jqm, ngElement, jqmElement;
-      var ngPre ="",ngPost ="", jqmPre = "", jqmPost = "";
     
       beforeEach(function () {
           ng = testutils.ng;
@@ -9,22 +8,22 @@
       });
   
       function compileAnker(ngAttrs, jqmAttrs) {
-          ngElement = ng.init(ngPre + '<a href="index.html"  jqm-button '+ngAttrs+'>myButtons</div>' + ngPost);
-          jqmElement = jqm.init(jqmPre + '<a href="index.html" data-role="button" '+jqmAttrs+' >myButtons</a>' +jqmPost);
+          ngElement = ng.init('<a href="index.html"  jqm-button '+ngAttrs+'>myButtons</div>');
+          jqmElement = jqm.init('<a href="index.html" data-role="button" '+jqmAttrs+' >myButtons</a>');
       }
     
       function compileButton(ngAttrs, jqmAttrs) {
-          ngElement = ng.init(ngPre + '<div jqm-button="button" '+ngAttrs+'>myButtons</div>' + ngPost);
-          jqmElement = jqm.init(jqmPre + '<button '+jqmAttrs+' >myButtons</a>' +jqmPost);
+          ngElement = ng.init( '<div jqm-button="button" '+ngAttrs+'>myButtons</div>');
+          jqmElement = jqm.init('<button '+jqmAttrs+' >myButtons</a>');
       }     
     
     function compileSubmitButton(ngAttrs, jqmAttrs) {
-          ngElement = ng.init(ngPre + '<div jqm-button="submit" '+ngAttrs+'>myButtons</div>' + ngPost);
-          jqmElement = jqm.init(jqmPre + '<button type="submit" '+jqmAttrs+' >myButtons</a>' +jqmPost);;
+          ngElement = ng.init('<div jqm-button="submit" '+ngAttrs+'>myButtons</div>');
+          jqmElement = jqm.init('<button type="submit" '+jqmAttrs+' >myButtons</a>');;
       }
     function compileResetButton(ngAttrs, jqmAttrs) {
-          ngElement = ng.init(ngPre + '<div jqm-button="submit" '+ngAttrs+'>myButtons</div>' + ngPost);
-          jqmElement = jqm.init(jqmPre + '<button type="submit" '+jqmAttrs+' >myButtons</a>' +jqmPost);
+          ngElement = ng.init('<div jqm-button="submit" '+ngAttrs+'>myButtons</div>');
+          jqmElement = jqm.init( '<button type="submit" '+jqmAttrs+' >myButtons</a>');
       }
 
     
@@ -74,15 +73,6 @@
               testutils.compareElementRecursive(ngElement, jqmElement);
             });
             
-            xit("respects different themes in parent", function () {
-              ngPre  = '<div jqm-theme="b">';
-              jqmPre = '<div data-theme="b">';
-              ngPost = jqmPost = '</div>';
-              
-              compileFunction('','');
-
-              testutils.compareElementRecursive(ngElement, jqmElement);
-            });
             
             it("has same markup while mouseenter", function () {
               compileFunction('','');
@@ -148,6 +138,7 @@
               compileFunction('data-mini="true"','data-mini="true"');
               testutils.compareElementRecursive(ngElement, jqmElement);
             });
+           
             
             describe('icons', function () {
               it("first icon", function () {
@@ -169,23 +160,14 @@
                 compileFunction('jqm-button-icon="add" jqm-button-iconpos="notext"','data-icon="add" data-iconpos="notext" ');
                 testutils.compareElementRecursive(ngElement, jqmElement);
               });
+                 
+              it("and mini", function () {
+                compileFunction('data-mini="true" jqm-button-icon="delete"','data-mini="true" data-icon="delete"');
+                testutils.compareElementRecursive(ngElement, jqmElement);
+              });
+              
             });    
           });
     }
-           
-       /* 
-          describe('functionality', function(){
-              xit("click on disabled button is not possible", function () {
-                compile('','class="ui-disabled"');//'class="ui-disabled"',);
-      
-                jqmElement.trigger('click');
-                ngElement.triggerHandler('click');
-                  
-                testutils.compareElementRecursive(ngElement, jqmElement);
-              });
-          });
-        */
-
-          
    
   });
