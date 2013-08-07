@@ -40,7 +40,15 @@ jqmModule.directive('jqmButton', [function () {
         link: function (scope, element, attr, ctrl){
                var jqmControlGroupCtrl = ctrl[0];
           
-          
+             // this shows an scope.$position attribute
+            console.dir(scope);
+            
+            for(var name in scope){
+              console.log("attribute scope."+name+" available");
+            } 
+             
+            console.log("try to access scope.$position : "+scope.$position);
+           
           scope.isMini = isMini;
           scope.isDisabled = isDisabled;
           scope.isIcon = isIcon;
