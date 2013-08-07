@@ -36,11 +36,10 @@ jqmModule.directive('jqmButton', [function () {
             mini: '@',
             theme: '@'
         },
-        require: ['?jqmControlGroupCtrl'],
+        require: ['^?jqmControlgroup'],
         link: function (scope, element, attr, ctrl){
                var jqmControlGroupCtrl = ctrl[0];
-            
-    
+          
           
           scope.isMini = isMini;
           scope.isDisabled = isDisabled;
@@ -109,7 +108,11 @@ jqmModule.directive('jqmButton', [function () {
                            ((isMini())?"ui-mini ":" ") +
                            ((isIcon())?"ui-btn-icon-"+getIconPos()+" ":" ") + 
                            ((isInline())?"ui-btn-inline ":" ") + 
-                           ((isSubmitButton())?"ui-submit":"") );
+                           ((isSubmitButton())?"ui-submit":"") );/*+
+                           ((scope.$position.first)  ? "ui-first-child":"") + 
+                           ((scope.$position.last)   ? "ui-last-child":"")); //*/
+ 
+          
           element.bind('mouseenter', toggleMouseOver);
           element.bind('mouseleave', toggleMouseLeave);
           element.bind('mousedown mouseup', toggleMouseClick);

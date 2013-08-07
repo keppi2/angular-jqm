@@ -1,5 +1,5 @@
   "use strict";
-  describe("jqmButton", function () {
+  ddescribe("jqmButton", function () {
       var ng, jqm, ngElement, jqmElement;
     
       beforeEach(function () {
@@ -17,19 +17,23 @@
           jqmElement = jqm.init('<button '+jqmAttrs+' >myButtons</a>');
       }     
     
-    function compileSubmitButton(ngAttrs, jqmAttrs) {
+      function compileSubmitButton(ngAttrs, jqmAttrs) {
           ngElement = ng.init('<div jqm-button="submit" '+ngAttrs+'>myButtons</div>');
           jqmElement = jqm.init('<button type="submit" '+jqmAttrs+' >myButtons</a>');;
       }
-    function compileResetButton(ngAttrs, jqmAttrs) {
+      
+      function compileResetButton(ngAttrs, jqmAttrs) {
           ngElement = ng.init('<div jqm-button="reset" '+ngAttrs+'>myButtons</div>');
           jqmElement = jqm.init( '<button type="reset" '+jqmAttrs+' >myButtons</a>');
       }
-
-
+    
+      function compileControlgroupButtons(ngAttrs, jqmAttrs) {
+          ngElement = ng.init( '<fieldset jqm-controlgrouplegend="myLegend"><div jqm-button="button" '+ngAttrs+'>myButton 1</div><div jqm-button="button" '+ngAttrs+'>myButton 2</div><div jqm-button="button" '+ngAttrs+'>myButton 3</div></fieldset>');
+          jqmElement = jqm.init('<fieldset data-role="controlgroup"><legend>myLegend</legend><button '+jqmAttrs+' >myButtons 1</a><button '+jqmAttrs+' >myButtons 2</a><button '+jqmAttrs+' >myButtons 3</a></fieldset>');
+      }
+ 
     
       describe('anker ', function () {
-        
           testLayout(compileAnker);
         
           it("has same markup when disabled", function () {
@@ -38,10 +42,8 @@
           }); 
       });
     
-    
       describe('button', function () {
           
-         
           testLayout(compileButton);    
           describe(' submit ', function () {
             testLayout(compileSubmitButton);   
@@ -52,7 +54,6 @@
             jqmElement.find("button").button("disable");
             testutils.compareElementRecursive(ngElement, jqmElement);
           });     
-        
 
            xit("is able to be a reset button", function () {
             compileResetButton('','');
@@ -60,7 +61,16 @@
           });   
         
       });
-
+    
+    //not finished yet
+      xdescribe('controlgroup', function () {
+        it("can handles controlgroups", function () {
+          compileControlgroupButtons("","");
+          testutils.compareElementRecursive(ngElement, jqmElement);
+        }); 
+        
+        //todo: control orientation, control iconpos?
+      });    
 
     
     function testLayout(compileFunction){
@@ -70,12 +80,16 @@
               testutils.compareElementRecursive(ngElement, jqmElement);
             });
             
-            it("respects different themes", function () {
+            it("different themes theme:a", function () {
               compileFunction('jqm-theme="a"','data-theme="a"');
               testutils.compareElementRecursive(ngElement, jqmElement);
             });
             
-            
+            it("different themes theme:c", function () {
+              compileFunction('jqm-theme="c"','data-theme="c"');
+              testutils.compareElementRecursive(ngElement, jqmElement);
+            });
+             
             it("has same markup while mouseenter", function () {
               compileFunction('','');
                         
