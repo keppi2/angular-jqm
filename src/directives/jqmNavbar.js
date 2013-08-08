@@ -20,16 +20,16 @@ jqmModule.directive('jqmNavbar', function () {
             list.addClass("ui-grid-solo");
           }else if(listelements.length === 2){
             list.addClass("ui-grid-a"); 
-          }
+          } 
           
             
-          
+        
           for(var i = 0; i < listelements.length;i++){
              angular.element(listelements[i]).addClass("ui-block-"+((i===0)?"a":"b"));
           }  
       
         }
-    }; 
+    };  
                
     function JqmNavbarCtrl() {
         return {

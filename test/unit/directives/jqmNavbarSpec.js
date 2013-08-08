@@ -16,6 +16,7 @@
        
           var ngElementString = "";
           var jqmElementString = "";
+       
          for( var i = 0; i < n;i++){
           ngElementString = ngElementString + "<li><a jqm-button jqm-button-inline>Test"+i+"</a></li>";
           jqmElementString = jqmElementString + "<li><a>Test"+i+"</a></li>";
@@ -28,15 +29,17 @@
       
       describe('test layout', function () {
         
-          iit("has same markup in default configuration", function () {
+          it("has same markup in default configuration", function () {
             compile();
             testutils.compareElementRecursive(ngElement, jqmElement);
           }); 
         
-          iit("has same markup with two list elements", function () {
+          it("has same markup with two list elements", function () {
             compileNElements(2);
             testutils.compareElementRecursive(ngElement, jqmElement);
           }); 
+        
+
          
       });
    
