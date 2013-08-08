@@ -2,7 +2,7 @@
 <html class="ui-mobile">
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
-    <link type="text/css" rel="stylesheet" href="../components/jquery-mobile/jquery.mobile-1.3.1.css">
+    <link type="text/css" rel="stylesheet" href="../components/jquery-mobile/jquery.mobile-1.3.1.min.css">
 
     <script src="../components/angular/angular.js"></script>
     <script src="../components/angular/angular-mobile.js"></script>
@@ -41,44 +41,25 @@
 <script type="text/ng-template" id="main.html">
     <!-- the main page of your app -->
     <div jqm-page>
-        <div jqm-header><h1>Page1</h1></div>
+        <div jqm-header><h1>Page1</h1>
+          
+  </div>
      
- 
-        
-        <div>
-         <form action="http://Foobar3000.com/echo" method="GET" >
-            <input type="text" name="test" />
-            <div jqm-button="submit" jqm-button-icon="ok">Submit</div>
-            <div jqm-button="reset" jqm-button-icon="delete">Reset</div>
-          </form>
-        </div>
-        
-        
-        <p>hello</p>
-
-        <p>hello</p>
-    </div> 
-</script>
-
-<script type="text/ng-template" id="page2.html">
-    <!-- Another page -->
-    <div jqm-page>
-        <div jqm-header><h1>Page2</h1></div>
-        <div jqm-footer>
-            <h1>Test fixed footer</h1>
-        </div>
-        <a href="#/main.html">To page1</a>
-
-        <p>hello</p>
-
-        <p>hello</p>
-
-        <p>hello</p>
-
-        <p>hello</p>
+      <div jqm-navbar>
+          <ul >
+            <li><a jqm-button jqm-button-inline >Test</a></li>
+            <li><a jqm-button jqm-button-inline >Test2</a></li>
+           </ul>
+           </div>
+           
+           
     </div>
 </script>
+  
+<script type="text/ng-template" id="page2.html">
 
+    <div jqm-page><div jqm-header><h3>Header</h3><ul jqm-navbar><li><a jqm-button jqm-button-inline jqm-button-active href="a.html">Test</a></li><li><a jqm-button jqm-button-inline href="b.html">Test2</a></li><li><a jqm-button jqm-button-inline href="c.html">Test3</a></li></ul></div></div>
+</script>
 <div jqm-caching-view>
     <div jqm-footer><h1>Fixed Footer</h1></div>
 
