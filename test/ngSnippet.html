@@ -9,6 +9,7 @@
     <script src="../dist/angular-jqm.js"></script>
 
     <script>
+   
         var mod = angular.module("app", ["jqm"]);
         mod.config(function ($routeProvider) {
             $routeProvider.when("/ngSnippet.html", {
@@ -42,16 +43,22 @@
     <!-- the main page of your app -->
     <div jqm-page>
         <div jqm-header><h1>Page1</h1></div>
-        <a href="#/page2.html">To page2</a>
-
+     
+ 
+        
+        <div>
+         <form action="http://Foobar3000.com/echo" method="GET" >
+            <input type="text" name="test" />
+            <div jqm-button="submit" jqm-button-icon="ok">Submit</div>
+            <div jqm-button="reset" jqm-button-icon="delete">Reset</div>
+          </form>
+        </div>
+        
+        
         <p>hello</p>
 
         <p>hello</p>
-
-        <p>hello</p>
-        <p>hello</p>
-
-        <p>hello</p>
+    </div> 
     </div>
 </script>
 
