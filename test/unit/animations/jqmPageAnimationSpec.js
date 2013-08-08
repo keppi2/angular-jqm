@@ -2,24 +2,36 @@
 describe('jqmPageAnimation', function () {
     /*global PAGE_ANIMATION_DEFS */
 
-    var animationCompleteQueue;
+    var animationCompleteHandlers;
 
     function fireNextAnimationEvent() {
-        if (!animationCompleteQueue.length) {
-            return;
-        }
-        animationCompleteQueue.shift().cb();
+        angular.forEach(animationCompleteHandlers, function(entry) {
+            entry.cb();
+        });
+    }
+
+    function animationHandlerCount() {
+        var count = 0;
+        angular.forEach(animationCompleteHandlers, function(entry) {
+            count++;
+        });
+        return count;
     }
 
     beforeEach(function () {
-        animationCompleteQueue = [];
+        var nextId = 0;
+        animationCompleteHandlers = {};
         module(function ($provide) {
             $provide.factory('$animationComplete', function () {
                 return function (element, callback) {
-                    animationCompleteQueue.push({
+                    var id = nextId++;
+                    animationCompleteHandlers[id] = {
                         el: element,
                         cb: callback
-                    });
+                    };
+                    return function() {
+                        delete animationCompleteHandlers[id];
+                    };
                 };
             });
         });
@@ -28,10 +40,10 @@ describe('jqmPageAnimation', function () {
     describe('parallel animations', function () {
         var enter, leave, enterEl, leaveEl, parentEl;
         beforeEach(function () {
-            testutils.ng.enableTransitions(true);
-            inject(function (jqmPageSlideEnterAnimation, jqmPageSlideLeaveAnimation) {
-                enter = jqmPageSlideEnterAnimation;
-                leave = jqmPageSlideLeaveAnimation;
+            testutils.ng.enableAnimations(true);
+            inject(function (pageSlideEnterAnimation, pageSlideLeaveAnimation) {
+                enter = pageSlideEnterAnimation;
+                leave = pageSlideLeaveAnimation;
                 enterEl = angular.element('<div></div>');
                 leaveEl = angular.element('<div class="ui-page-active"></div>');
                 parentEl = angular.element('<div></div>').append(enterEl).append(leaveEl);
@@ -62,9 +74,9 @@ describe('jqmPageAnimation', function () {
 
                 leave.setup(leaveEl);
                 fireNextAnimationEvent();
+                fireNextAnimationEvent();
                 expect(enterEl.prop("className")).toBe('ui-page-active');
 
-                fireNextAnimationEvent();
                 expect(leaveEl.prop("className")).toBe('');
                 expect(parentEl.prop("className")).toBe('');
             });
@@ -108,10 +120,10 @@ describe('jqmPageAnimation', function () {
     describe('sequential animations', function () {
         var enter, leave, enterEl, leaveEl, parentEl;
         beforeEach(function () {
-            testutils.ng.enableTransitions(true);
-            inject(function (jqmPageFadeEnterAnimation, jqmPageFadeLeaveAnimation) {
-                enter = jqmPageFadeEnterAnimation;
-                leave = jqmPageFadeLeaveAnimation;
+            testutils.ng.enableAnimations(true);
+            inject(function (pageFadeEnterAnimation, pageFadeLeaveAnimation) {
+                enter = pageFadeEnterAnimation;
+                leave = pageFadeLeaveAnimation;
                 enterEl = angular.element('<div></div>');
                 leaveEl = angular.element('<div class="ui-page-active"></div>');
                 parentEl = angular.element('<div></div>').append(enterEl).append(leaveEl);
@@ -197,10 +209,10 @@ describe('jqmPageAnimation', function () {
     describe('none animation', function() {
         var enter, leave, enterEl, leaveEl, parentEl;
         beforeEach(function () {
-            testutils.ng.enableTransitions(true);
-            inject(function (jqmPageNoneEnterAnimation, jqmPageNoneLeaveAnimation) {
-                enter = jqmPageNoneEnterAnimation;
-                leave = jqmPageNoneLeaveAnimation;
+            testutils.ng.enableAnimations(true);
+            inject(function (pageNoneEnterAnimation, pageNoneLeaveAnimation) {
+                enter = pageNoneEnterAnimation;
+                leave = pageNoneLeaveAnimation;
                 enterEl = angular.element('<div></div>');
                 leaveEl = angular.element('<div class="ui-page-active"></div>');
                 parentEl = angular.element('<div></div>').append(enterEl).append(leaveEl);
@@ -232,20 +244,66 @@ describe('jqmPageAnimation', function () {
             });
         });
     });
+    describe('disabled animations', function () {
+        var animation, parentEl, scope;
+        beforeEach(function () {
+            testutils.ng.enableAnimations(false);
+            inject(function ($rootScope, $animator) {
+                scope = $rootScope.$new();
+                animation = $animator(scope, {ngAnimate: "'slide'"});
+                parentEl = angular.element('<div></div>');
+            });
+        });
+        it('adds the correct classes even for mixed elements', function () {
+            var elements = angular.element('<div>a<div class="ui-page"></div>b</div>').contents();
+            animation.enter(elements, parentEl);
+            expect(elements.eq(1).prop("className")).toBe('ui-page ui-page-active');
+        });
+
+        it('removes the correct classes', function () {
+            var elements = angular.element('<div>a<div class="ui-page ui-page-active"></div>b</div>').contents();
+            animation.leave(elements, parentEl);
+            expect(elements.eq(1).prop("className")).toBe('ui-page');
+        });
+
+    });
+    describe('no animations', function () {
+        var animation, parentEl, scope;
+        beforeEach(function () {
+            testutils.ng.enableAnimations(false);
+            inject(function ($rootScope, $animator) {
+                scope = $rootScope.$new();
+                animation = $animator(scope, {ngAnimate: "''"});
+                parentEl = angular.element('<div></div>');
+            });
+        });
+        it('adds the correct classes even for mixed elements', function () {
+            var elements = angular.element('<div>a<div class="ui-page"></div>b</div>').contents();
+            animation.enter(elements, parentEl);
+            expect(elements.eq(1).prop("className")).toBe('ui-page ui-page-active');
+        });
+
+        it('removes the correct classes', function () {
+            var elements = angular.element('<div>a<div class="ui-page ui-page-active"></div>b</div>').contents();
+            animation.leave(elements, parentEl);
+            expect(elements.eq(1).prop("className")).toBe('ui-page');
+        });
+
+    });
     describe('animation degradation', function() {
         describe('no 3d animations', function() {
             var enter, leave, enterEl, leaveEl, parentEl;
             beforeEach(function () {
-                testutils.ng.enableTransitions("basic");
-                inject(function (jqmPageSlideEnterAnimation, jqmPageSlideLeaveAnimation) {
-                    enter = jqmPageSlideEnterAnimation;
-                    leave = jqmPageSlideLeaveAnimation;
+                testutils.ng.enableAnimations("basic");
+                inject(function (pageSlideEnterAnimation, pageSlideLeaveAnimation) {
+                    enter = pageSlideEnterAnimation;
+                    leave = pageSlideLeaveAnimation;
                     enterEl = angular.element('<div></div>');
                     leaveEl = angular.element('<div class="ui-page-active"></div>');
                     parentEl = angular.element('<div></div>').append(enterEl).append(leaveEl);
                 });
             });
-            it('uses the transition fallback', function() {
+            it('uses the animation fallback', function() {
                 expect(PAGE_ANIMATION_DEFS.slide.fallback).toBe('fade');
                 enter.setup(enterEl);
                 leave.setup(leaveEl);
@@ -258,10 +316,10 @@ describe('jqmPageAnimation', function () {
         describe('no animations', function() {
             var enter, leave, enterEl, leaveEl, parentEl;
             beforeEach(function () {
-                testutils.ng.enableTransitions(false);
-                inject(function (jqmPageSlideEnterAnimation, jqmPageSlideLeaveAnimation) {
-                    enter = jqmPageSlideEnterAnimation;
-                    leave = jqmPageSlideLeaveAnimation;
+                testutils.ng.enableAnimations(false);
+                inject(function (pageSlideEnterAnimation, pageSlideLeaveAnimation) {
+                    enter = pageSlideEnterAnimation;
+                    leave = pageSlideLeaveAnimation;
                     enterEl = angular.element('<div></div>');
                     leaveEl = angular.element('<div class="ui-page-active"></div>');
                     parentEl = angular.element('<div></div>').append(enterEl).append(leaveEl);
@@ -274,6 +332,54 @@ describe('jqmPageAnimation', function () {
                 expect(parentEl.prop("className")).toBe('');
                 expect(enterEl.prop("className")).toBe('ui-page-active');
                 expect(leaveEl.prop("className")).toBe('');
+            });
+        });
+    });
+
+    describe('animation abort', function() {
+        it('should abort a running animation if a new one is started', function() {
+            testutils.ng.enableAnimations(true);
+            inject(function($rootScope, $compile, $templateCache, $animator) {
+                $animator.enabled(true);
+                $templateCache.put('/page1', '<div jqm-page>1</div>');
+                $templateCache.put('/page2', '<div jqm-page>2</div>');
+                $templateCache.put('/page3', '<div jqm-page>3</div>');
+                var scope = $rootScope.$new();
+                var viewEl = $compile('<div jqm-view="route"></div>')(scope);
+                scope.route = { templateUrl: '/page1'};
+                $rootScope.$apply();
+                scope.route = { templateUrl: '/page2', animation: 'page-slide'};
+                $rootScope.$apply();
+                testutils.ng.tick(10);
+                var page1El = viewEl.children().eq(0);
+                expect(page1El.text()).toBe('1');
+                var page2El = viewEl.children().eq(1);
+                expect(page2El.text()).toBe('2');
+
+                expect(viewEl).toHaveClass('viewport-slide');
+                expect(page1El).toHaveClass('slide out ui-page-active');
+                expect(page2El).toHaveClass('slide in ui-page-active');
+
+                expect(animationHandlerCount()).toBe(1);
+                scope.route = { templateUrl: '/page3', animation: 'page-fade'};
+                $rootScope.$apply();
+                testutils.ng.tick(10);
+                var page3El = viewEl.children().eq(1);
+                expect(viewEl.text()).toBe('23');
+                expect(page3El.text()).toBe('3');
+                expect(viewEl).toHaveClass('viewport-fade');
+                expect(viewEl).not.toHaveClass('viewport-slide');
+                expect(page2El).toHaveClass('fade out ui-page-active');
+                expect(page2El).not.toHaveClass('slide in');
+                fireNextAnimationEvent();
+                expect(page3El).toHaveClass('fade in ui-page-active');
+                expect(page3El).not.toHaveClass('slide out');
+                fireNextAnimationEvent();
+                expect(page1El).not.toHaveClass('slide fade in out ui-page-active');
+                expect(page2El).not.toHaveClass('slide fade in out ui-page-active');
+                expect(page3El).not.toHaveClass('slide in out');
+                expect(page3El).toHaveClass('ui-page-active');
+                expect(animationHandlerCount()).toBe(0);
             });
         });
     });

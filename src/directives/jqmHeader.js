@@ -4,7 +4,7 @@
  * @restrict A
  *
  * @description
- * Defines the header of a `jqm-page`.
+ * Defines the header of a `jqm-page`. For a persistent header, put the header directly below `jqmView` / `jqmCachingView`.
  *
  * @example
  <example module="jqm">
@@ -18,24 +18,23 @@
  </file>
  </example>
  */
-jqmModule.directive('jqmHeader', function () {
+jqmModule.directive('jqmHeader', ['jqmConfig', function (jqmConfig) {
     return {
         restrict: 'A',
         // Own scope as we have a different default theme
         // than the page.
         scope: true,
-        require: '^jqmPage',
         controller: angular.noop,
-        link: function (scope, element, attr, jqmPageCtrl) {
-            jqmPageCtrl.header = element;
+        link: function (scope, element, attr) {
+            element.parent().data("jqmHeader", element);
             var hasExplicitTheme = scope.hasOwnProperty('$theme');
             if (!hasExplicitTheme) {
-                scope.$theme = 'a';
+                scope.$theme = jqmConfig.secondaryTheme;
             }
             element.addClass("ui-header ui-bar-"+scope.$theme);
         }
     };
-});
+}]);
 
 angular.forEach(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7'], function (headerName) {
     jqmModule.directive(headerName, hxDirective);

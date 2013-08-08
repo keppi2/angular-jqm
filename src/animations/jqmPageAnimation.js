@@ -1,3 +1,61 @@
+jqmModule.config(['$provide', function ($provide) {
+    $provide.decorator('$animator', ['$delegate', function ($animator) {
+
+        patchedAnimator.enabled = $animator.enabled;
+        return patchedAnimator;
+
+        function patchedAnimator(scope, attr) {
+            var animation = $animator(scope, attr),
+                _leave = animation.leave,
+                _enter = animation.enter;
+            animation.enter = patchedEnter;
+            animation.leave = patchedLeave;
+            return animation;
+
+            // if animations are disabled or we have none
+            // add the "ui-page-active" css class manually.
+            // E.g. needed for the initial page.
+            function patchedEnter(elements) {
+                var i, el;
+                if (!$animator.enabled() || !animationName("enter")) {
+                    forEachPage(elements, function (element) {
+                        angular.element(element).addClass("ui-page-active");
+                    });
+                }
+                /*jshint -W040:true*/
+                return _enter.apply(this, arguments);
+            }
+
+            function patchedLeave(elements) {
+                if (!$animator.enabled() || !animationName("leave")) {
+                    forEachPage(elements, function (element) {
+                        angular.element(element).removeClass("ui-page-active");
+                    });
+                }
+                /*jshint -W040:true*/
+                return _leave.apply(this, arguments);
+            }
+
+            function forEachPage(elements, callback) {
+                angular.forEach(elements, function (element) {
+                    if (element.className && ~element.className.indexOf('ui-page')) {
+                        callback(element);
+                    }
+                });
+            }
+
+            function animationName(type) {
+                // Copied from AnimationProvider.
+                var ngAnimateValue = scope.$eval(attr.ngAnimate);
+                var className = ngAnimateValue ?
+                    angular.isObject(ngAnimateValue) ? ngAnimateValue[type] : ngAnimateValue + '-' + type
+                    : '';
+                return className;
+            }
+        }
+    }]);
+}]);
+
 var PAGE_ANIMATION_DEFS = {
     none: {
         sequential: true,
@@ -53,8 +111,8 @@ function registerPageAnimations(animations) {
     }
 }
 
-function registerPageAnimation(transitionType, reverse, direction) {
-    var ngName = "jqmPage-" + transitionType;
+function registerPageAnimation(animationType, reverse, direction) {
+    var ngName = "page-" + animationType;
 
     if (reverse) {
         ngName += "-reverse";
@@ -62,15 +120,15 @@ function registerPageAnimation(transitionType, reverse, direction) {
     ngName += "-" + direction;
 
     jqmModule.animation(ngName, ['$animationComplete', '$sniffer', function (animationComplete, $sniffer) {
-        var degradedTransitionType = maybeDegradeTransition(transitionType),
+        var degradedAnimationType = maybeDegradeAnimation(animationType),
             activePageClass = "ui-page-active",
             toPreClass = "ui-page-pre-in",
-            addClasses = degradedTransitionType + (reverse ? " reverse" : ""),
-            removeClasses = "out in reverse " + degradedTransitionType,
-            viewPortClasses = "ui-mobile-viewport-transitioning viewport-" + degradedTransitionType,
-            transitionDef = PAGE_ANIMATION_DEFS[degradedTransitionType];
+            addClasses = degradedAnimationType + (reverse ? " reverse" : ""),
+            removeClasses = "out in reverse " + degradedAnimationType,
+            viewPortClasses = "ui-mobile-viewport-transitioning viewport-" + degradedAnimationType,
+            animationDef = PAGE_ANIMATION_DEFS[degradedAnimationType];
 
-        if (degradedTransitionType === 'none') {
+        if (degradedAnimationType === 'none') {
             return {
                 setup: setupNone,
                 start: startNone
@@ -95,7 +153,7 @@ function registerPageAnimation(transitionType, reverse, direction) {
         // --------------
 
         function setupNone(element) {
-            element = firstElement(element);
+            element = filterElementsWithParents(element);
             if (direction === "leave") {
                 element.removeClass(activePageClass);
             } else {
@@ -109,186 +167,214 @@ function registerPageAnimation(transitionType, reverse, direction) {
 
         function setupEnter(element) {
             var synchronization;
-            element = firstElement(element);
-            synchronization = createSynchronizationIfNeeded(element);
-            if (!transitionDef.sequential) {
-                synchronization.bindStart(addStartClasses);
-            }
-            synchronization.enter(function (done) {
-                if (transitionDef.sequential) {
-                    addStartClasses();
-                }
+            element = filterElementsWithParents(element);
+            synchronization = createSynchronizationIfNeeded(element.eq(0).parent(), "enter");
+            synchronization.events.preEnter.listen(function() {
+                // Set the new page to display:block but don't show it yet.
+                // This code is from jquery mobile 1.3.1, function "createHandler".
+                // Prevent flickering in phonegap container: see comments at #4024 regarding iOS
                 element.css("z-index", -10);
                 element.addClass(activePageClass + " " + toPreClass);
+            });
+            synchronization.events.enter.listen(function() {
                 // Browser has settled after setting the page to display:block.
                 // Now start the animation and show the page.
                 element.addClass(addClasses);
                 // Restores visibility of the new page: added together with $to.css( "z-index", -10 );
                 element.css("z-index", "");
                 element.removeClass(toPreClass);
-                animationComplete(element, function () {
-                    element.removeClass(removeClasses);
-                    done();
-                });
             });
-            return synchronization;
+            synchronization.events.enterDone.listen(function() {
+                element.removeClass(removeClasses);
+            });
 
-            function addStartClasses() {
-                // Set the new page to display:block but don't show it yet.
-                // This code is from jquery mobile 1.3.1, function "createHandler".
-                // Prevent flickering in phonegap container: see comments at #4024 regarding iOS
-                element.css("z-index", -10);
-                element.addClass(activePageClass + " " + toPreClass);
-            }
+            synchronization.enter();
+            return synchronization;
         }
 
         function setupLeave(element) {
-            var synchronization;
-            element = firstElement(element);
-            synchronization = createSynchronizationIfNeeded(element);
-            synchronization.leave(function (done) {
+            var synchronization,
+                origElement = element;
+            element = filterElementsWithParents(element);
+            synchronization = createSynchronizationIfNeeded(element.eq(0).parent(), "leave");
+            synchronization.events.leave.listen(function () {
                 element.addClass(addClasses);
-                animationComplete(element, function () {
-                    element.removeClass(removeClasses);
-                    done();
-                });
             });
+            synchronization.events.leaveDone.listen(function () {
+                element.removeClass(removeClasses);
+            });
+            synchronization.leave();
             return synchronization;
         }
 
         function start(element, done, synchronization) {
-            synchronization.bindEnd(done);
+            synchronization.events.end.listen(done);
         }
 
-        function createSynchronizationIfNeeded(el) {
-            var parent = el.parent(),
-                sync = parent.data("animationSync");
+        function createSynchronizationIfNeeded(parent, direction) {
+            var sync = parent.data("animationSync");
+            if (sync && sync.running[direction]) {
+                // We already have a running animation, so stop it
+                sync.stop();
+                sync = null;
+            }
             if (!sync) {
-                if (transitionDef.sequential) {
-                    sync = sequentialSynchronization();
+                if (animationDef.sequential) {
+                    sync = sequentialSynchronization(parent);
                 } else {
-                    sync = parallelSynchronization();
+                    sync = parallelSynchronization(parent);
                 }
-                sync.bindStart(function () {
+                sync.events.start.listen(function () {
                     parent.addClass(viewPortClasses);
                 });
-                sync.bindEnd(function () {
+                sync.events.end.listen(function () {
                     parent.removeClass(viewPortClasses);
                     parent.data("animationSync", null);
                 });
                 parent.data("animationSync", sync);
             }
+            sync.running = sync.running || {};
+            sync.running[direction] = true;
             return sync;
         }
 
-        function firstElement(element) {
-            var i;
+        function filterElementsWithParents(element) {
+            var i, res = angular.element();
             for (i = 0; i < element.length; i++) {
-                if (element[i].nodeType === 1) {
-                    return element.eq(i);
+                if (element[i].nodeType === 1 && element[i].parentNode) {
+                    res.push(element[i]);
                 }
             }
-            return angular.element();
+            return res;
         }
 
-        function maybeDegradeTransition(transition) {
+        function maybeDegradeAnimation(animation) {
             if (!$sniffer.cssTransform3d) {
-                // Fall back to simple transition in browsers that don't support
+                // Fall back to simple animation in browsers that don't support
                 // complex 3d animations.
-                transition = PAGE_ANIMATION_DEFS[transition].fallback;
+                animation = PAGE_ANIMATION_DEFS[animation].fallback;
             }
             if (!$sniffer.animations) {
-                transition = "none";
+                animation = "none";
             }
-            return transition;
-        }
-    }]);
-
-    function parallelSynchronization() {
-        var start = latch(),
-            startAsync = latch(),
-            end = latch(),
-            runningCount = 0;
-        start.listen(function() {
-            // setTimeout to allow
-            // the browser to settle after the new page
-            // has been set to display:block and before the css animation starts.
-            // Without this transitions are sometimes not shown,
-            // unless you call window.scrollTo or click on a link (weired dependency...)
-            window.setTimeout(function() {
-                startAsync.notify();
-            },0);
-        });
-
-        return {
-            enter: enter,
-            leave: leave,
-            bindStart: start.listen,
-            bindEnd: end.listen
-        };
-
-        function enter(delegate) {
-            setup(delegate);
+            return animation;
         }
 
-        function leave(delegate) {
-            setup(delegate);
-        }
-
-        function setup(delegate) {
-            runningCount++;
-            start.notify();
-            startAsync.listen(function() {
-                delegate(function () {
-                    runningCount--;
-                    if (runningCount === 0) {
-                        end.notify();
-                    }
-                });
+        function parallelSynchronization(parent) {
+            var events = {
+                    start: latch(),
+                    preEnter: latch(),
+                    enter: latch(),
+                    enterDone: latch(),
+                    leave: latch(),
+                    leaveDone: latch(),
+                    end: latch()
+                },
+                runningCount = 0;
+            events.start.listen(function () {
+                // setTimeout to allow
+                // the browser to settle after the new page
+                // has been set to display:block and before the css animation starts.
+                // Without this animations are sometimes not shown,
+                // unless you call window.scrollTo or click on a link (weired dependency...)
+                window.setTimeout(function () {
+                    events.enter.notify();
+                    events.leave.notify();
+                }, 0);
             });
+            events.end.listen(animationComplete(parent, onAnimationComplete));
+            events.end.listen(events.enterDone.notify);
+            events.end.listen(events.leaveDone.notify);
+            events.start.listen(events.preEnter.notify);
+
+            return {
+                enter: begin,
+                leave: begin,
+                stop: stop,
+                events: events
+            };
+
+            function begin() {
+                runningCount++;
+                events.start.notify();
+            }
+
+            function stop() {
+                events.leaveDone.notify();
+                events.enterDone.notify();
+                events.end.notify();
+            }
+
+            function onAnimationComplete() {
+                runningCount--;
+                if (runningCount === 0) {
+                    events.end.notify();
+                }
+            }
         }
 
-    }
-
-    function sequentialSynchronization() {
-        var start = latch(),
-            end = latch(),
-            enterDelegate,
-            leaveDelegate;
-        return {
-            enter: enter,
-            leave: leave,
-            bindStart: start.listen,
-            bindEnd: end.listen
-        };
-
-        function enter(delegate) {
-            enterDelegate = delegate;
-            start.notify();
+        function sequentialSynchronization(parent) {
+            var events = {
+                    start: latch(),
+                    preEnter: latch(),
+                    enter: latch(),
+                    enterDone: latch(),
+                    leave: latch(),
+                    leaveDone: latch(),
+                    end: latch()
+                },
+                hasEnter = false,
+                hasLeave = false,
+                _onAnimationComplete = angular.noop;
+            events.end.listen(animationComplete(parent, onAnimationComplete));
+            events.start.listen(events.leave.notify);
+            events.leaveDone.listen(events.preEnter.notify);
+            events.leaveDone.listen(events.enter.notify);
+            events.leaveDone.listen(function() {
+                if (hasEnter) {
+                    _onAnimationComplete = events.enterDone.notify;
+                } else {
+                    events.enterDone.notify();
+                }
+            });
             // setTimeout to detect if a leave animation has been used.
             window.setTimeout(function () {
-                if (!leaveDelegate) {
-                    enterDelegate(function () {
-                        end.notify();
-                    });
+                if (!hasLeave) {
+                    events.leaveDone.notify();
                 }
             }, 0);
-        }
+            events.enterDone.listen(events.end.notify);
 
-        function leave(delegate) {
-            leaveDelegate = delegate;
-            start.notify();
-            delegate(function () {
-                if (enterDelegate) {
-                    enterDelegate(function () {
-                        end.notify();
-                    });
-                } else {
-                    end.notify();
-                }
-            });
+            return {
+                enter: enter,
+                leave: leave,
+                stop: stop,
+                events: events
+            };
+
+            function enter() {
+                hasEnter = true;
+                events.start.notify();
+            }
+
+            function leave() {
+                hasLeave = true;
+                events.start.notify();
+                _onAnimationComplete = events.leaveDone.notify;
+            }
+
+            function stop() {
+                events.leaveDone.notify();
+                events.enterDone.notify();
+                events.end.notify();
+            }
+
+            function onAnimationComplete() {
+                _onAnimationComplete();
+            }
+
         }
-    }
+    }]);
 
     function latch() {
         var _listeners = [],

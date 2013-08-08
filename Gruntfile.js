@@ -119,10 +119,8 @@ module.exports = function(grunt) {
     },
     karma: {
       options: {
-        configFile: 'test/config/karma.conf.js',
-        files: ['node_modules/grunt-karma/node_modules/karma/adapter/lib/jasmine.js',
-                'node_modules/grunt-karma/node_modules/karma/adapter/jasmine.js',
-                'components/angular/angular.js',
+        configFile: 'test/config/karma-shared.conf.js',
+        files: ['components/angular/angular.js',
                 'components/angular/angular-mobile.js',
                 'components/angular/angular-mocks.js',
                 'test/lib/testutils.js',
@@ -136,20 +134,24 @@ module.exports = function(grunt) {
       dev: {
         options: {
           singleRun: false,
-          browsers: ['Chrome']
+          browsers: ['PhantomJS']
         },
         background: true
       },
-      travis: {
-        options: {
-          singleRun: true,
-          browsers: ['Chrome']
-        }
+      //We're only allowed two concurrent browsers on saucelabs
+      sauce1: {
+        configFile: 'test/config/karma-saucelabs.conf.js',
+        browsers: ['sauce_ie', 'sauce_firefox'],
+      },
+      sauce2: {
+        configFile: 'test/config/karma-saucelabs.conf.js',
+        //Boot up both mobile browsers at once, since they take alot longer to start
+        browsers: ['sauce_ios', 'sauce_android'],
       },
       localBuild: {
         options: {
           singleRun: true,
-          browsers: ['Chrome']
+          browsers: ['PhantomJS']
         }
       }
     },
@@ -184,23 +186,46 @@ module.exports = function(grunt) {
       api: {
         src: ['src/**/*.js', 'docs/content/api/**/*.ngdoc'],
         title: 'API Documentation'
-      }
+      },
+
+    },
+
+    //After lots of bower problems, we switched to grunt-curl
+    'curl-dir': {
+      'components/angular': [
+        'http://code.angularjs.org/1.1.5/angular.js',
+        'http://code.angularjs.org/1.1.5/angular-mocks.js',
+        'http://code.angularjs.org/1.1.5/angular-mobile.js'
+      ],
+      'components/jquery-mobile': [
+        'http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.js',
+        'http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css'
+      ],
+      'components/jquery': [
+        'http://code.jquery.com/jquery-1.10.2.js'
+      ],
+      'components/angular-scrolly': [
+        'https://raw.github.com/ajoslin/angular-scrolly/master/angular-scrolly.js'
+      ]
     }
   });
 
-  grunt.registerTask('install', 'Prepare development environment', install); 
   grunt.registerTask('build', ['html2js', 'css2js', 'concat']);
   grunt.registerTask('dev', ['connect','karma:dev','watch']);
   grunt.registerTask('default', ['install','build','jshint','karma:localBuild','ngdocs']);
-  grunt.registerTask('travis', ['build','jshint','karma:travis','ngdocs']);
+  grunt.registerTask('install', 'Prepare development environment', function() {
+    grunt.task.run('curl-dir');
+    install();
+  });
 
-  grunt.loadNpmTasks('grunt-karma');
-  grunt.loadNpmTasks('grunt-html2js');
-  grunt.loadNpmTasks('grunt-conventional-changelog');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-conventional-changelog');
+  grunt.loadNpmTasks('grunt-curl');
+  grunt.loadNpmTasks('grunt-html2js');
+  grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-ngdocs');
   grunt.loadTasks('build/grunt');
 

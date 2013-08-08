@@ -8,7 +8,19 @@ beforeEach(function() {
                 return "Expected '" + angular.mock.dump(this.actual) + "' " + not + "to have class '" + cls + "'.";
             };
 
-            return this.actual.hasClass(cls);
+            var self = this;
+            if (!angular.isArray(cls)) {
+                cls = cls.split(" ");
+            }
+            var res = not?false:true;
+            angular.forEach(cls, function(cls) {
+                if (not) {
+                    res = res || self.actual.hasClass(cls);
+                } else {
+                    res = res && self.actual.hasClass(cls);
+                }
+            });
+            return res;
         }
     });
 });
