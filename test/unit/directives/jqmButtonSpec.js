@@ -1,5 +1,5 @@
   "use strict";
-  ddescribe("jqmButton", function () {
+  describe("jqmButton", function () {
       var ng, jqm, ngElement, jqmElement;
     
       beforeEach(function () {

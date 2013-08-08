@@ -4,14 +4,15 @@
  * @restrict A
  *
  * @description 
- * Creates a jquery mobile button on the given element.
+ * Creates a jquery mobile button on the given element. At the moment, jqmButton does not support Controlgroups.
  * 
  * The jqm-button can be used on <a></a> and <button /> Tags
- * @param {string=} jqmButton Value "button" defines if this directive is set on a <button /> tag
- * @param {string=} jqmButtonDisabled 
- * @param {string=} jqmButtonIcon
- * @param {string=} jqmButtonIconPos
- * @param {string=} mini
+ * @param {NULL|submit|reset} jqmButton Leave it empty if its on an anker-tag, fopr a button set value to button,submit or reset
+ * @param jqmButtonDisabled If set the Button is disabled
+ * @param {string=} jqmButtonIcon Defines an Icon for the Button (see Jquery Docu for available Icons)
+ * @param {left|right|top|bottom} jqmButtonIconPos Defines the Position of the icon, default is left
+ * @param mini If set the Button has a minified layout
+ * @param inline If set the Button does not fill the full line
  *
  * @example
 <example module="jqm">
@@ -39,16 +40,8 @@ jqmModule.directive('jqmButton', [function () {
         require: ['^?jqmControlgroup'],
         link: function (scope, element, attr, ctrl){
                var jqmControlGroupCtrl = ctrl[0];
-          
-             // this shows an scope.$position attribute
-            console.dir(scope);
-            
-            for(var name in scope){
-              console.log("attribute scope."+name+" available");
-            } 
-             
-            console.log("try to access scope.$position : "+scope.$position);
            
+                       
           scope.isMini = isMini;
           scope.isDisabled = isDisabled;
           scope.isIcon = isIcon;
@@ -68,7 +61,7 @@ jqmModule.directive('jqmButton', [function () {
 
           function isIcon(){
             return attr.jqmButtonIcon; 
-          }
+          } 
           
           function getIconPos(){
            if(attr.jqmButtonIconpos)
