@@ -25,7 +25,19 @@
           ngElement = ng.init('<div jqm-navbar><ul>'+ngElementString+'</ul></div>');
           jqmElement = jqm.init('<div data-role="navbar"><ul>'+jqmElementString+'</ul></div>');
       }
-
+    
+     describe('supporting functions', function () {
+          function getCharacterOfNumber(positionInAlphabet){
+            return String.fromCharCode(97+(positionInAlphabet%26)); 
+          }
+      
+        
+          it("can transform number to character", function () {
+            expect(getCharacterOfNumber('0')).toBe("a");
+            expect(getCharacterOfNumber('1')).toBe("b");
+            expect(getCharacterOfNumber('2')).toBe("c");
+          }); 
+     });
       
       describe('test layout', function () {
         
@@ -34,13 +46,21 @@
             testutils.compareElementRecursive(ngElement, jqmElement);
           }); 
         
-          it("has same markup with two list elements", function () {
-            compileNElements(2);
+        for(var i = 2; i < 5;i++){
+          it("has same markup with "+i+" list elements", function () {
+            compileNElements(i);
             testutils.compareElementRecursive(ngElement, jqmElement);
           }); 
+        }
+        it("has same markup with 5 list elements", function () {
+            compileNElements(5);
+            testutils.compareElementRecursive(ngElement, jqmElement);
+          });
         
-
-         
-      });
+           xit("has same markup with 6 list elements", function () {
+            compileNElements(6);
+            testutils.compareElementRecursive(ngElement, jqmElement);
+          });    
+      }); 
    
   }); 

@@ -14,26 +14,35 @@ jqmModule.directive('jqmNavbar', function () {
           
           var list = element.children(0);
           var listelements = list.children();
-
+          var numberElements = listelements.length;
           
-          if(listelements.length === 1){
+          if( numberElements === 1){
             list.addClass("ui-grid-solo");
-          }else if(listelements.length === 2){
-            list.addClass("ui-grid-a"); 
+          }else if(numberElements < 6){
+            list.addClass("ui-grid-"+ctrl.getCharacterOfNumber(numberElements-2)); 
+          } else {
+            //i have not idea what to do
           } 
-          
+           
             
-        
           for(var i = 0; i < listelements.length;i++){
-             angular.element(listelements[i]).addClass("ui-block-"+((i===0)?"a":"b"));
+             angular.element(listelements[i]).addClass("ui-block-"+ctrl.getCharacterOfNumber(i));
           }  
       
         }
-    };  
-               
+    };   
+                
     function JqmNavbarCtrl() {
+        
+        //a === 0 
+        function getCharacterOfNumber(positionInAlphabet){
+          return String.fromCharCode(97+(positionInAlphabet%26)); 
+        }
+      
         return {
-          inNavbar : true
+          inNavbar : true,
+          getCharacterOfNumber : getCharacterOfNumber
         } 
     }
+  
 });
