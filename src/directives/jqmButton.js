@@ -36,18 +36,20 @@ jqmModule.directive('jqmButton', [function () {
             mini: '@',
             theme: '@'
         },
-        require: ['^?jqmControlgroup'],
+        require: ['^?jqmControlgroup','^?jqmNavbar'],
         link: function (scope, element, attr, ctrl){
                var jqmControlGroupCtrl = ctrl[0];
+               var jqmNavbar = ctrl[1];
           
              // this shows an scope.$position attribute
-            console.dir(scope);
+           /* console.dir(scope);
             
             for(var name in scope){
               console.log("attribute scope."+name+" available");
             } 
-             
+              
             console.log("try to access scope.$position : "+scope.$position);
+            */
            
           scope.isMini = isMini;
           scope.isDisabled = isDisabled;
@@ -56,15 +58,25 @@ jqmModule.directive('jqmButton', [function () {
           scope.isSubmitButton = isSubmitButton;
           scope.isResetButton = isResetButton;
           scope.isInline = isInline;
+          scope.isInNavbar = isInNavbar;
+          scope.isActive = isActive;
           scope.theme = scope.$theme || 'c';
           
           function isMini() {
             return scope.mini || (jqmControlGroupCtrl && jqmControlGroupCtrl.$scope.mini);
+          } 
+         
+          function isInNavbar() {
+            return ((jqmNavbar && jqmNavbar.inNavbar === true) === true);
           }
-        
+          
+          function isActive() {
+            return attr.jqmButtonActive === "";
+          }
+          
           function isDisabled(){
             return attr.jqmButtonDisabled === "" || element.hasClass("ui-disabled");
-          }
+          } 
 
           function isIcon(){
             return attr.jqmButtonIcon; 
@@ -109,13 +121,15 @@ jqmModule.directive('jqmButton', [function () {
           function isResetButton(){
             return attr.jqmButton.toLowerCase() === "reset" ;
           }
+ 
+         
 
-        
-
-          element.addClass("ui-btn ui-shadow ui-btn-corner-all ui-btn-up-"+scope.$theme+" "+
+          element.addClass("ui-btn ui-btn-up-"+scope.$theme+" "+
+                           ((isInNavbar())?"":"ui-shadow ui-btn-corner-all ") +
                            ((isMini())?"ui-mini ":" ") +
                            ((isIcon())?"ui-btn-icon-"+getIconPos()+" ":" ") + 
                            ((isInline())?"ui-btn-inline ":" ") + 
+                           ((isActive())?"ui-btn-active ":" ") + 
                            ((isSubmitButton())?"ui-submit":"") );/*+
                            ((scope.$position.first)  ? "ui-first-child":"") + 
                            ((scope.$position.last)   ? "ui-last-child":"")); //*/
